@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사고차 이미지 기획서</title>
+<style>
+  :root{
+    --bg:#ffffff; --surface:#f6f8fa; --text:#1f2328; --muted:#59636e; --line:#d1d9e0;
+    --accent:#1f6feb; --accent-tint:rgba(31,111,235,.10); --ok:#1a7f37; --warn:#9a6700;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d1117; --surface:#161b22; --text:#e6edf3; --muted:#9198a1; --line:#3d444d;
+      --accent:#4493f8; --accent-tint:rgba(68,147,248,.14); --ok:#3fb950; --warn:#d29922;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+    font-size:15px;line-height:1.65}
+  main{max-width:980px;margin:0 auto;padding:40px 16px 80px}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:20px;margin:48px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:28px 0 8px}
+  p{margin:8px 0}
+  .meta{color:var(--muted);font-size:13px}
+  .lead{font-size:16px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:var(--surface);font-weight:600;white-space:nowrap}
+  td.id{white-space:nowrap;color:var(--muted)}
+  code{font-family:Consolas,"D2Coding",monospace;font-size:.9em;background:var(--surface);
+    border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;white-space:nowrap}
+  .done{color:var(--ok);border:1px solid var(--ok)}
+  .todo{color:var(--warn);border:1px solid var(--warn)}
+  nav.toc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 18px;margin:24px 0}
+  nav.toc ol{margin:0;padding-left:20px}
+  nav.toc a{color:var(--accent);text-decoration:none}
+  .diagram{border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0;overflow-x:auto;background:var(--bg)}
+  .diagram svg{display:block;width:100%;min-width:720px;height:auto}
+  .diagram svg text{fill:var(--text);font-family:inherit}
+  .diagram svg .q{fill:var(--muted)}
+  .diagram svg .box{fill:none;stroke:var(--muted);stroke-width:1.25}
+  .diagram svg .acc{fill:var(--accent-tint);stroke:var(--accent);stroke-width:2}
+  .diagram svg .ln{fill:none;stroke:var(--muted);stroke-width:1.25}
+  .diagram svg .ln.dash{stroke-dasharray:5 4}
+  .diagram svg .life{stroke:var(--line);stroke-dasharray:4 4}
+  .diagram svg .sep{stroke:var(--line)}
+  .diagram svg marker path{fill:var(--muted)}
+  .shots{display:grid;grid-template-columns:1fr;gap:16px;margin-top:12px}
+  figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+  figure img{display:block;width:auto;max-width:100%;height:auto;margin:0 auto;background:var(--bg)}
+  figure .ph{display:none;aspect-ratio:16/10;align-items:center;justify-content:center;text-align:center;
+    color:var(--muted);font-size:13px;padding:16px;border-bottom:1px dashed var(--line)}
+  figure.wide{grid-column:1/-1}
+  figure.missing img{display:none}
+  figure.missing .ph{display:flex}
+  figcaption{padding:8px 12px;font-size:13px}
+  figcaption small{display:block;color:var(--muted)}
+  ol.steps li{margin:4px 0}
+  @media print{ main{padding:0} .diagram{break-inside:avoid} figure{break-inside:avoid} }
+</style>
+</head>
+<body>
+<main>
+
+<h1>카카오톡 사고차 이미지 자동 분류·업로드 기획서</h1>
+<p class="meta">작성자 김경태 · 작성일 2026-10-25</p>
+
+<p class="lead">카카오톡으로 받은 사고차 사진을 방별 폴더에 자동으로 정리하는 기능은 구현을 마쳤고, 견적 상세 화면에서 그 사진을 견적에 바로 첨부하는 기능은 개발 중입니다.</p>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#request">개발 요구사항</a></li>
+    <li><a href="#intent">추가 개발 배경</a></li>
+    <li><a href="#overview">개요</a></li>
+    <li><a href="#plan">기획 (사용자 시나리오·화면 구성)</a></li>
+    <li><a href="#flow">구현 플로우</a></li>
+    <li><a href="#shots">화면 스크린샷</a></li>
+    <li><a href="#req">기능 명세</a></li>
+    <li><a href="#next">향후 추가 개발 사항</a></li>
+  </ol>
+</nav>
+
+<!-- 1. 개발 요구사항 -->
+<h2 id="request">1. 개발 요구사항</h2>
+<ul>
+  <li>견적 등록 시 사고차 사진을 함께 등록 요청</li>
+</ul>
+
+<!-- 2. 추가 개발 배경 -->
+<h2 id="intent">2. 추가 개발 배경</h2>
+<p>이미지 자동 분류는 요청 사항에 없던 기능입니다. 개발 기획 중 견적팀 인터뷰에서 발견한 문제를 해결하려고 추가로 개발했습니다.</p>
+<p>인터뷰 결과, 견적팀이 소통하는 카카오톡 방은 여러 개이고 방마다 사고차 이미지가 오가고 있었습니다. 카톡에서 이미지를 저장하면 모두 한 폴더에 섞여 저장되므로, 요청대로 이미지 업로드만 구현하면 실무자는 견적을 등록할 때마다 어느 방의 사진인지 직접 골라내야 합니다. 업로드 기능이 오히려 불편함과 추가 업무를 만드는 셈입니다.</p>
+<p>그래서 저장 단계에서 이미지를 방별로 자동 분류해, 사진을 "찾는" 시간을 없애고 늘어나는 업무 부하를 상쇄하도록 했습니다.</p>
+
+<h3>해결하려는 문제</h3>
+<table>
+  <tr><th>현재 문제</th><th>해결 방식</th></tr>
+  <tr><td>견적팀이 소통하는 카카오톡 방이 여러 개 존재</td><td>방 이름 → 저장 폴더 매핑 (설정 파일의 방 목록)</td></tr>
+  <tr><td>여러 방의 이미지가 한 폴더(카카오톡 받은 파일)에 섞여 저장</td><td>저장 즉시 방별 폴더로 자동 이동 및 해당 폴더 자동 열림</td></tr>
+  <tr><td>견적 등록 때 해당 사진을 다시 찾아야 하는 번거로움</td><td>자동분류된 폴더에서 이미지 선택</td></tr></table>
+
+<h3>기대 효과</h3>
+<p>카톡 "저장" 한 번으로 사진이 방별로 정리되고, 열린 폴더에서 견적 화면으로 바로 끌어다 놓을 수 있습니다.</p>
+
+<!-- 3. 개요 -->
+<h2 id="overview">3. 개요</h2>
+<table>
+  <tr><th>구분</th><th>내용</th></tr>
+  <tr><td>1단계<br>카카오톡 이미지 자동 분류</td>
+      <td>카카오톡 이미지 자동분류 프로그램을 실행 상태에서 카톡방의 이미지 저장을 누르면 설정된 폴더 경로로 자동으로 이미지가 저장되고 해당 폴더가 자동으로 열립니다.</td></tr>
+  <tr><td>2단계<br>사고차 이미지 업로드</td>
+      <td>견적 상세 화면에 사고차 이미지 영역을 추가했고, 이미지 업로드 및 삭제 기능은 개발 중입니다.</td></tr></table>
+
+<!-- 4. 기획 -->
+<h2 id="plan">4. 기획</h2>
+<p>견적 담당자는 카톡에서 사진을 저장한 뒤, 자동으로 열린 폴더에서 견적 상세 화면으로 끌어다 놓기만 하면 됩니다.</p>
+
+<h3>4-1. 사용자 시나리오</h3>
+<ol class="steps">
+  <li><b>최초 1회 설정</b> — 창 제목 확인 도구로 방 이름을 확인하고, 설정 파일의 방 목록에 "방 이름": "저장 폴더"를 등록합니다.</li>
+  <li><b>분류 프로그램 실행</b> — 분류 프로그램을 실행해 둡니다. 점검할 때는 점검 모드로 실행합니다.</li>
+  <li><b>카톡에서 저장</b> — 카톡방을 <u>별도 창</u>으로 띄우고 사고차 사진을 "이미지 저장"합니다.</li>
+  <li><b>자동 분류</b> — 사진이 그 방의 폴더로 옮겨지고, 탐색기가 열려 방금 저장한 파일이 선택됩니다.</li>
+  <li><b>견적에 첨부</b> — IPN 견적 상세를 열고, 탐색기의 사진을 사고차 이미지 드래그 영역으로 끌어다 놓습니다.</li>
+  <li><b>업로드</b> — 썸네일을 확인하고 [업로드 시작]을 누릅니다. 각 썸네일이 "완료"로 바뀌면 저장된 것입니다.</li>
+  <li><b>삭제</b> — 잘못 올린 사진은 썸네일 오른쪽 위의 ×를 눌러 삭제합니다.</li>
+</ol>
+
+<h3>4-2. 화면 구성 — 견적 상세 사고차 이미지 영역</h3>
+<table>
+  <tr><th>요소</th><th>설명</th></tr>
+  <tr><td>드래그 영역</td><td>이미지를 끌어다 놓거나 클릭해 선택하며, 여러 장을 한 번에 넣을 수 있음</td></tr>
+  <tr><td>이미지 표시</td><td>넣은 이미지를 썸네일로 보여 주고, 썸네일마다 상태(대기·업로드 중·완료·실패)와 삭제(×) 버튼 표시</td></tr>
+  <tr><td>업로드</td><td>[업로드 시작]을 누르면 대기 중인 이미지를 한 장씩 올림</td></tr>
+</table>
+
+<h3>4-3. 카카오톡 이미지 자동분류 프로그램 사용 조건</h3>
+<ul>
+  <li>카톡 방은 반드시 <b>별도 창</b>으로 띄워야 합니다. 메인 창 안에서 보면 제목이 항상 "카카오톡"이라 구분할 수 없습니다.</li>
+  <li>카톡방 이름을 바꾸면 설정 파일에 등록한 방 이름도 같이 고쳐야 합니다. 고친 뒤 분류 프로그램을 다시 실행합니다.</li>
+  <li>PC 카톡 업데이트로 카톡 창을 알아보는 내부 값이 바뀌면 분류가 되지 않을 수 있습니다.</li>
+</ul>
+
+<!-- 5. 구현 플로우 -->
+<h2 id="flow">5. 구현 플로우</h2>
+
+<h3>5-1. 1단계 — 카카오톡 이미지 자동 분류</h3>
+<div class="diagram">
+<svg viewBox="0 0 1100 280" role="img" aria-label="카톡에서 저장한 이미지가 방별 폴더로 이동하고 폴더가 열린다" font-size="13">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+  <text x="20" y="30" font-size="15" font-weight="600">저장 한 번으로 방별 폴더 이동과 폴더 열기까지 자동 처리</text>
+
+  <rect class="box" x="20" y="70" width="150" height="60" rx="8"/>
+  <text x="95" y="96" text-anchor="middle">카톡 방 창에서</text><text x="95" y="114" text-anchor="middle">이미지 저장</text>
+  <rect class="box" x="200" y="70" width="150" height="60" rx="8"/>
+  <text x="275" y="96" text-anchor="middle">카톡 받은 파일</text><text x="275" y="114" text-anchor="middle">폴더에 생성</text>
+  <rect class="box" x="380" y="70" width="150" height="60" rx="8"/>
+  <text x="455" y="96" text-anchor="middle">새 이미지 감지</text><text x="455" y="114" text-anchor="middle" class="q">폴더 감시</text>
+  <rect class="box" x="560" y="70" width="150" height="60" rx="8"/>
+  <text x="635" y="105" text-anchor="middle">저장 완료 대기</text>
+  <polygon class="box" points="740,100 820,62 900,100 820,138"/>
+  <text x="820" y="96" text-anchor="middle">방 제목이</text><text x="820" y="113" text-anchor="middle">방 목록과 일치?</text>
+  <rect class="box" x="930" y="70" width="150" height="60" rx="8"/>
+  <text x="1005" y="96" text-anchor="middle">미분류</text><text x="1005" y="114" text-anchor="middle">폴더로 이동</text>
+
+  <rect class="box" x="745" y="200" width="150" height="60" rx="8"/>
+  <text x="820" y="226" text-anchor="middle">방별 폴더로 이동</text><text x="820" y="244" text-anchor="middle" class="q">중복 시 (1), (2)</text>
+  <rect class="acc" x="545" y="200" width="170" height="60" rx="8"/>
+  <text x="630" y="226" text-anchor="middle" font-weight="600">저장된 폴더 자동 열기</text><text x="630" y="244" text-anchor="middle">방금 저장한 파일 선택</text>
+
+  <g marker-end="url(#a1)">
+    <path class="ln" d="M170 100H198"/>
+    <path class="ln" d="M350 100H378"/>
+    <path class="ln" d="M530 100H558"/>
+    <path class="ln" d="M710 100H738"/>
+    <path class="ln" d="M900 100H928"/>
+    <path class="ln" d="M820 138V198"/>
+    <path class="ln" d="M745 230H717"/>
+  </g>
+  <text x="915" y="90" text-anchor="middle" font-size="12" class="q">아니오</text>
+  <text x="830" y="175" font-size="12" class="q">예</text>
+</svg>
+</div>
+
+<h3>5-2. 2단계 — 견적 상세 사고차 이미지 업로드</h3>
+<div class="diagram">
+<svg viewBox="0 0 1100 280" role="img" aria-label="방별 폴더의 이미지를 견적 상세 화면에 끌어다 놓고 업로드하면 견적에 등록된다" font-size="13">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+  <text x="20" y="30" font-size="15" font-weight="600">열린 폴더에서 끌어다 놓고 [업로드 시작] 한 번으로 견적에 등록</text>
+
+  <rect class="box" x="20" y="70" width="150" height="60" rx="8"/>
+  <text x="95" y="96" text-anchor="middle">방별 폴더에서</text><text x="95" y="114" text-anchor="middle">이미지 선택</text>
+  <rect class="box" x="200" y="70" width="150" height="60" rx="8"/>
+  <text x="275" y="96" text-anchor="middle">드래그 영역에</text><text x="275" y="114" text-anchor="middle">끌어다 놓기</text>
+  <polygon class="box" points="380,100 460,62 540,100 460,138"/>
+  <text x="460" y="96" text-anchor="middle" font-size="12">jpg·jpeg·png·gif,</text><text x="460" y="113" text-anchor="middle">4MB 이하?</text>
+  <rect class="box" x="570" y="70" width="150" height="60" rx="8"/>
+  <text x="645" y="96" text-anchor="middle">목록에서 제외</text><text x="645" y="114" text-anchor="middle" class="q">안내 문구 표시</text>
+
+  <rect class="box" x="20" y="200" width="150" height="60" rx="8"/>
+  <text x="95" y="226" text-anchor="middle">썸네일 "대기"</text><text x="95" y="244" text-anchor="middle">표시</text>
+  <rect class="box" x="200" y="200" width="150" height="60" rx="8"/>
+  <text x="275" y="226" text-anchor="middle">[업로드 시작]</text><text x="275" y="244" text-anchor="middle">클릭</text>
+  <rect class="box" x="380" y="200" width="150" height="60" rx="8"/>
+  <text x="455" y="226" text-anchor="middle">이미지 저장소에</text><text x="455" y="244" text-anchor="middle">업로드</text>
+  <rect class="box" x="560" y="200" width="150" height="60" rx="8"/>
+  <text x="635" y="226" text-anchor="middle">견적에</text><text x="635" y="244" text-anchor="middle">이미지 등록</text>
+  <rect class="acc" x="740" y="200" width="170" height="60" rx="8"/>
+  <text x="825" y="226" text-anchor="middle" font-weight="600">썸네일 "완료" 표시</text><text x="825" y="244" text-anchor="middle">업로드 끝</text>
+
+  <g marker-end="url(#a2)">
+    <path class="ln" d="M170 100H198"/>
+    <path class="ln" d="M350 100H378"/>
+    <path class="ln" d="M540 100H568"/>
+    <path class="ln" d="M460 138V165H95V198"/>
+    <path class="ln" d="M170 230H198"/>
+    <path class="ln" d="M350 230H378"/>
+    <path class="ln" d="M530 230H558"/>
+    <path class="ln" d="M710 230H738"/>
+  </g>
+  <text x="555" y="90" text-anchor="middle" font-size="12" class="q">아니오</text>
+  <text x="470" y="158" font-size="12" class="q">예</text>
+</svg>
+</div>
+<p>이미지는 한 장씩 순서대로 올라갑니다. 한 장이 실패해도 나머지는 계속 진행되고, 실패한 썸네일은 [업로드 시작]을 다시 눌러 올릴 수 있습니다.</p>
+<!-- 6. 스크린샷 -->
+<h2 id="shots">6. 화면 스크린샷</h2>
+<div class="shots">
+  <figure>
+    <a href="스샷이미지/001_카톡방설정.png" target="_blank"><img src="스샷이미지/001_카톡방설정.png" alt="설정 파일에 카톡방과 저장 폴더 등록" onerror="this.closest('figure').classList.add('missing')"></a>
+    <div class="ph">스샷이미지/001_카톡방설정.png</div>
+    <figcaption>① 카톡방 설정<small>설정 파일의 방 목록에 "[카랑] IT 업무 공유" 방과 저장 폴더(C:/카톡이미지/테스트2)를 등록</small></figcaption>
+  </figure>
+  <figure>
+    <a href="스샷이미지/002_카톡방_자동분류_실행.png" target="_blank"><img src="스샷이미지/002_카톡방_자동분류_실행.png" alt="분류 프로그램 실행" onerror="this.closest('figure').classList.add('missing')"></a>
+    <div class="ph">스샷이미지/002_카톡방_자동분류_실행.png</div>
+    <figcaption>② 분류 프로그램 실행<small>프로그램을 실행하면 감시 폴더, 등록된 방, 저장 폴더를 표시하고 감시를 시작</small></figcaption>
+  </figure>
+  <figure class="wide">
+    <a href="스샷이미지/003_카톡방이미지_저장.png" target="_blank"><img src="스샷이미지/003_카톡방이미지_저장.png" alt="카톡방 이미지 저장" onerror="this.closest('figure').classList.add('missing')"></a>
+    <div class="ph">스샷이미지/003_카톡방이미지_저장.png</div>
+    <figcaption>③ 카톡방에서 이미지 저장<small>방을 별도 창으로 띄운 상태에서 이미지를 열고 저장(붉은 테두리) 버튼 클릭</small></figcaption>
+  </figure>
+  <figure class="wide">
+    <a href="스샷이미지/004_이미지자동분류저장.png" target="_blank"><img src="스샷이미지/004_이미지자동분류저장.png" alt="이미지가 방별 폴더로 자동 이동되고 폴더가 열림" onerror="this.closest('figure').classList.add('missing')"></a>
+    <div class="ph">스샷이미지/004_이미지자동분류저장.png</div>
+    <figcaption>④ 방별 폴더로 자동 분류<small>저장한 이미지가 설정된 폴더로 이동되고 해당 폴더가 자동으로 열림. 같은 이름이 있으면 (1), (2)를 붙여 저장</small></figcaption>
+  </figure>
+  <figure class="wide">
+    <a href="screenshot/견적상세_이미지업로드.png" target="_blank"><img src="screenshot/견적상세_이미지업로드.png" alt="견적 상세 화면의 사고차 이미지 영역, 이미지 3장 선택 후 대기" onerror="this.closest('figure').classList.add('missing')"></a>
+    <div class="ph">screenshot/견적상세_이미지업로드.png</div>
+    <figcaption>견적 상세 — 이미지 선택 직후<small>붉은 테두리가 사고차 이미지 영역. 이미지 3장이 썸네일 "대기" 상태이고 [업로드 시작]이 활성. 클릭하면 원본 크기로 열림</small></figcaption>
+  </figure>
+</div>
+
+<!-- 7. 기능 명세 -->
+<h2 id="req">7. 기능 명세</h2>
+<p>기능 13건 중 11건은 구현을 마쳤고, 2건(U-05, U-06)은 개발 중입니다.</p>
+
+<h3>7-1. 기능 — 1단계 카카오톡 이미지 자동 분류</h3>
+<table>
+  <tr><th>ID</th><th>요구사항</th><th>구현 내용</th><th>상태</th></tr>
+  <tr><td class="id">K-01</td><td>카톡 저장 폴더 감시</td><td>카톡 받은 파일 폴더에 새 이미지가 생기거나 옮겨지면 즉시 감지</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">K-02</td><td>어느 방에서 저장했는지 판별</td><td>이미지를 저장한 카톡 방 창의 제목으로 방을 판별</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">K-03</td><td>방 이름 → 폴더 매핑</td><td>설정 파일의 방 목록, 매칭 방식 완전 일치 / 부분 일치</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">K-04</td><td>방별 폴더로 자동 이동</td><td>파일 저장이 끝나면 이동, 이름 충돌 시 " (1)", " (2)" 부여</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">K-05</td><td>저장된 폴더 자동 열기</td><td>이미지가 이동된 폴더가 자동으로 열림</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">K-06</td><td>매칭 실패 이미지 별도 보관</td><td>미분류 폴더로 이동</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">K-07</td><td>설정 점검 도구</td><td>창 제목 확인 도구로 등록할 방 이름 확인</td><td><span class="badge done">완료</span></td></tr>
+</table>
+
+<h3>7-2. 기능 — 2단계 견적 상세 사고차 이미지 업로드</h3>
+<table>
+  <tr><th>ID</th><th>요구사항</th><th>구현 내용</th><th>상태</th></tr>
+  <tr><td class="id">U-01</td><td>드래그 영역</td><td>끌어다 놓기 또는 클릭해 파일 선택, 여러 장 가능</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">U-02</td><td>사전 검증</td><td>jpg·jpeg·png·gif, 파일별 4MB 이하</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">U-03</td><td>선택 즉시 미리보기</td><td>가로 썸네일, 파일명은 앞 5자 + 확장자, 저장분은 앞·대기분은 뒤</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">U-04</td><td>업로드 상태 표시</td><td>썸네일별 대기 / 업로드 중 / 완료 / 실패 표시. 실패 건은 다시 업로드 가능</td><td><span class="badge done">완료</span></td></tr>
+  <tr><td class="id">U-05</td><td>견적에 이미지 등록</td><td>[업로드 시작]을 누르면 이미지를 저장소에 올리고 해당 견적의 사고차 이미지로 등록</td><td><span class="badge todo">개발중</span></td></tr>
+  <tr><td class="id">U-06</td><td>삭제</td><td>썸네일 오른쪽 위의 ×를 누르면 해당 이미지를 견적에서 삭제</td><td><span class="badge todo">개발중</span></td></tr>
+</table>
+
+<!-- 8. 향후 추가 개발 사항 -->
+<h2 id="next">8. 향후 추가 개발 사항</h2>
+<table>
+  <tr><th>남은 불편</th><th>개발 내용</th><th>상태</th></tr>
+  <tr><td>여러 카톡방의 이미지를 견적을 작성할 때마다 업로드해야 하는 번거로움 존재</td><td>카톡방에서 이미지 저장과 동시에 IPN 등록 (이번 개발 적용 후 바로 진행)</td><td><span class="badge todo">개발예정</span></td></tr>
+</table>
+
+</main>
+</body>
+</html>
