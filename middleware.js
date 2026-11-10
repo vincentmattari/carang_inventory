@@ -13,7 +13,13 @@ export default async function middleware(request) {
   const next = url.pathname + url.search;
   const cookies = parseCookies(request.headers.get('cookie'));
 
-  const payload = await verifyAccessToken(cookies[COOKIE_AT]);
+  let payload;
+  try {
+    payload = await verifyAccessToken(cookies[COOKIE_AT]);
+  } catch (e) {
+    console.error('[auth] middleware', e);
+    return redirect('/login.html?error=config', clearSessionCookies());
+  }
   if (payload) {
     if (isAllowedEmail(payload.email)) {
       return new Response(null, { headers: { 'x-middleware-next': '1' } }); // 통과

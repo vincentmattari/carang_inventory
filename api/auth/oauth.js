@@ -1,12 +1,12 @@
 // 구글/카카오 로그인 시작: PKCE 생성 후 Supabase authorize 로 이동
-import { COOKIE_NEXT, COOKIE_PKCE, redirect, safeNext, siteOrigin, supabaseUrl, tempCookie } from '../_lib/auth.js';
+import { COOKIE_NEXT, COOKIE_PKCE, redirect, safeNext, siteOrigin, supabaseUrl, tempCookie, withErrors } from '../_lib/auth.js';
 
 const PROVIDERS = new Set(['google', 'kakao']);
 
 const base64url = (bytes) =>
   btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
-export async function GET(request) {
+export const GET = withErrors(async (request) => {
   const url = new URL(request.url);
   const provider = url.searchParams.get('provider');
   if (!PROVIDERS.has(provider)) return redirect('/login.html?error=provider');
@@ -25,4 +25,4 @@ export async function GET(request) {
     tempCookie(COOKIE_PKCE, verifier),
     tempCookie(COOKIE_NEXT, safeNext(url.searchParams.get('next'))),
   ]);
-}
+});

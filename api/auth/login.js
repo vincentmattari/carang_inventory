@@ -1,7 +1,7 @@
 // ID/PW 로그인 (관리자가 Supabase 에서 직접 생성한 계정)
-import { authRequest, idToEmail, isAllowedEmail, json, safeNext, sessionCookies } from '../_lib/auth.js';
+import { authRequest, idToEmail, isAllowedEmail, json, safeNext, sessionCookies, withErrors } from '../_lib/auth.js';
 
-export async function POST(request) {
+export const POST = withErrors(async (request) => {
   let body;
   try { body = await request.json(); } catch { return json({ error: '잘못된 요청입니다.' }, 400); }
 
@@ -21,4 +21,4 @@ export async function POST(request) {
   }
 
   return json({ ok: true, next: safeNext(body.next) }, 200, sessionCookies(data));
-}
+}, { api: true });

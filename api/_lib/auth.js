@@ -114,6 +114,16 @@ export function redirect(location, cookies = []) {
   return new Response(null, { status: 302, headers });
 }
 
+// 핸들러 공통 예외 처리: 설정 오류 등은 로그에 남기고 사용자에게는 안내만 표시
+export const withErrors = (handler, { api = false } = {}) => async (request) => {
+  try {
+    return await handler(request);
+  } catch (e) {
+    console.error('[auth]', e);
+    return api ? json({ error: '서버 설정 오류입니다. 관리자에게 문의하세요.' }, 500) : redirect('/login.html?error=config');
+  }
+};
+
 export function json(body, status = 200, cookies = []) {
   const headers = new Headers({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
   cookies.forEach((c) => headers.append('Set-Cookie', c));

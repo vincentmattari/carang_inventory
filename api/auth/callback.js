@@ -1,9 +1,9 @@
 // 구글/카카오 로그인 완료: code → 세션 교환 후 HttpOnly 쿠키 저장
 import {
-  COOKIE_NEXT, COOKIE_PKCE, authRequest, isAllowedEmail, parseCookies, redirect, safeNext, sessionCookies, tempCookie,
+  COOKIE_NEXT, COOKIE_PKCE, authRequest, isAllowedEmail, parseCookies, redirect, safeNext, sessionCookies, tempCookie, withErrors,
 } from '../_lib/auth.js';
 
-export async function GET(request) {
+export const GET = withErrors(async (request) => {
   const url = new URL(request.url);
   const cookies = parseCookies(request.headers.get('cookie'));
   const verifier = cookies[COOKIE_PKCE];
@@ -22,4 +22,4 @@ export async function GET(request) {
   }
 
   return redirect(next, [...clearTemp, ...sessionCookies(data)]);
-}
+});
