@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>로그인 · 카랑 인벤토리</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+         background: #f4f5f7; color: #1f2933; font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  .card { width: 100%; max-width: 380px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px 28px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: #52606d; font-size: 14px; margin: 0 0 24px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 0 0 6px; }
+  input { width: 100%; height: 44px; padding: 0 12px; border: 1px solid #cbd2d9; border-radius: 8px; font-size: 15px; margin-bottom: 14px; }
+  input:focus { outline: 2px solid #1d4ed8; outline-offset: -1px; border-color: transparent; }
+  button, .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 46px;
+                 border-radius: 8px; border: 1px solid transparent; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; }
+  .primary { background: #1d4ed8; color: #fff; }
+  .primary:disabled { opacity: .6; cursor: default; }
+  .divider { display: flex; align-items: center; gap: 10px; color: #9aa5b1; font-size: 12px; margin: 22px 0; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e5e7eb; }
+  .google { background: #fff; color: #1f2933; border-color: #cbd2d9; margin-bottom: 10px; }
+  .kakao { background: #FEE500; color: rgba(0,0,0,.85); }
+  .msg { display: none; font-size: 13px; padding: 10px 12px; border-radius: 8px; margin-bottom: 16px; }
+  .msg.error { display: block; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .msg.info { display: block; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>카랑 인벤토리</h1>
+  <p class="lead">문서를 보려면 로그인하세요.</p>
+
+  <div id="msg" class="msg" role="alert"></div>
+
+  <form id="form" autocomplete="on">
+    <label for="id">ID</label>
+    <input id="id" name="id" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <label for="password">비밀번호</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button id="submit" class="primary" type="submit">로그인</button>
+  </form>
+
+  <div class="divider">또는</div>
+
+  <a id="google" class="btn google" href="/api/auth/oauth?provider=google">
+    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+    Google로 로그인
+  </a>
+  <a id="kakao" class="btn kakao" href="/api/auth/oauth?provider=kakao">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.3-2.8c.5.1 .9.1 1.4.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>
+    카카오로 로그인
+  </a>
+</main>
+
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var next = params.get('next') || '/';
+    if (!/^\/(?![\/\\])/.test(next)) next = '/';
+
+    var messages = {
+      forbidden: '접근 권한이 없는 계정입니다. 관리자에게 문의하세요.',
+      oauth: '소셜 로그인에 실패했습니다. 다시 시도하세요.',
+      provider: '지원하지 않는 로그인 방식입니다.'
+    };
+    var msg = document.getElementById('msg');
+    function show(text, type) { msg.textContent = text; msg.className = 'msg ' + (type || 'error'); }
+
+    if (params.get('error')) show(messages[params.get('error')] || '로그인에 실패했습니다.');
+    else if (params.get('logout')) show('로그아웃되었습니다.', 'info');
+
+    ['google', 'kakao'].forEach(function (p) {
+      var a = document.getElementById(p);
+      a.href = '/api/auth/oauth?provider=' + p + '&next=' + encodeURIComponent(next);
+    });
+
+    var form = document.getElementById('form');
+    var submit = document.getElementById('submit');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submit.disabled = true;
+      submit.textContent = '로그인 중…';
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ id: document.getElementById('id').value, password: form.password.value, next: next })
+      })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (r) {
+          if (r.ok) { location.replace(r.data.next || '/'); return; }
+          show(r.data.error || '로그인에 실패했습니다.');
+          form.password.value = '';
+        })
+        .catch(function () { show('서버에 연결할 수 없습니다.'); })
+        .finally(function () { submit.disabled = false; submit.textContent = '로그인'; });
+    });
+  })();
+</script>
+</body>
+</html>

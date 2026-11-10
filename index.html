@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>카랑 인벤토리 문서</title>
+<style>
+  body { margin: 0; background: #f4f5f7; color: #1f2933; font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; line-height: 1.6; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 26px; margin: 0; }
+  .user { font-size: 13px; color: #52606d; display: flex; align-items: center; gap: 10px; }
+  .user a { color: #1d4ed8; text-decoration: none; border: 1px solid #cbd2d9; background: #fff; padding: 4px 10px; border-radius: 6px; }
+  h2 { font-size: 17px; margin: 26px 0 8px; }
+  ul { list-style: none; padding: 0; margin: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+  li + li { border-top: 1px solid #e5e7eb; }
+  li a { display: block; padding: 12px 16px; color: #1f2933; text-decoration: none; }
+  li a:hover { background: #f8fafc; color: #1d4ed8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>카랑 인벤토리 문서</h1>
+    <div class="user"><span id="who"></span><a href="/api/auth/logout">로그아웃</a></div>
+  </header>
+
+  <h2>매뉴얼</h2>
+  <ul>
+    <li><a href="Manual/재고_취소_회수_매뉴얼.html">재고 · 주문취소 · 회수 매뉴얼</a></li>
+    <li><a href="Manual/매뉴얼_카카오톡_사고차이미지_업로드.html">사고차 이미지 업로드 매뉴얼</a></li>
+  </ul>
+
+  <h2>부품</h2>
+  <ul>
+    <li><a href="Parts/WBS_재고입출고_취소반품.html">재고 입출고 · 부품 취소·반품 (WBS)</a></li>
+    <li><a href="Parts/취소_반품_플로우_V2.html">부품 취소·반품 플로우 V2</a></li>
+    <li><a href="Parts/취소_반품_플로우.html">부품 취소·반품 플로우</a></li>
+  </ul>
+
+  <h2>기획</h2>
+  <ul>
+    <li><a href="Planning/기획서_카카오톡_사고차이미지.html">사고차 이미지 기획서</a></li>
+  </ul>
+</div>
+<script>
+  fetch('/api/auth/me', { credentials: 'same-origin' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (u) { if (u) document.getElementById('who').textContent = u.email; })
+    .catch(function () {});
+</script>
+</body>
+</html>
